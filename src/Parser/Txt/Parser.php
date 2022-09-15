@@ -248,6 +248,13 @@ class Parser implements ConfigParser
                         return $value !== '';
                     }
                 ) : [];
+            case Storage::ATTRIBUTE_REWRITE_FORWARD_NUMBER:
+                if (!preg_match('/^(\+*\d{5,})$/', $attributeValue)) {
+                    self::throwParserException(
+                        "Invalid '%s' attribute value, error in the {$this->currentLine} line.",
+                        [$attributeName]
+                    );
+                }
             default:
                 return $attributeValue;
         }
@@ -260,7 +267,7 @@ class Parser implements ConfigParser
      */
     private function validateMenuRule(string $menuItemName, array $rule): void
     {
-        $msgTemplate = "The '%s' attribute of the '%s' tag with name '%s' is required in line {$this->currentLine}";
+        $msgTemplate = "The '%s' attribute of the '%s' tag with name '%s' is required, error in {$this->currentLine} line.";
         if (empty($rule[Storage::ATTRIBUTE_ACTION])) {
             self::throwParserException(
                 $msgTemplate,
