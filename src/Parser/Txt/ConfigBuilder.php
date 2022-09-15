@@ -65,7 +65,9 @@ class ConfigBuilder
         $this->start = new Start(
             new Action(
                 $defaultAction[Storage::ATTRIBUTE_ACTION],
-                $defaultAction[Storage::ATTRIBUTE_ACTION_TARGET]
+                $defaultAction[Storage::ATTRIBUTE_ACTION_TARGET],
+                Action::DEFAULT_RETURN_TIME_OUT,
+                $this->makeActionExtraOptions($defaultAction[Storage::ATTRIBUTE_REWRITE_FORWARD_NUMBER] ?? null)
             )
         );
         if (!empty($start[Storage::BUILDER_RULES])) {
@@ -90,7 +92,9 @@ class ConfigBuilder
                 $menuItemData[Storage::BUILDER_MENU_ITEM_PLAY_FILE],
                 new Action(
                     $defaultAction[Storage::ATTRIBUTE_ACTION],
-                    $defaultAction[Storage::ATTRIBUTE_ACTION_TARGET]
+                    $defaultAction[Storage::ATTRIBUTE_ACTION_TARGET],
+                    Action::DEFAULT_RETURN_TIME_OUT,
+                    $this->makeActionExtraOptions($defaultAction[Storage::ATTRIBUTE_REWRITE_FORWARD_NUMBER] ?? null)
                 ),
                 $menuItemData[Storage::BUILDER_MENU_ITEM_TIMEOUT] ?? MenuItem::TIMEOUT,
                 $menuItemData[Storage::BUILDER_MENU_ITEM_ATTEMPTS] ?? MenuItem::ATTEMPTS,
@@ -167,7 +171,9 @@ class ConfigBuilder
         return new Rule(
             new Action(
                 $rule[Storage::ATTRIBUTE_ACTION],
-                $rule[Storage::ATTRIBUTE_ACTION_TARGET]
+                $rule[Storage::ATTRIBUTE_ACTION_TARGET],
+                Action::DEFAULT_RETURN_TIME_OUT,
+                $this->makeActionExtraOptions($rule[Storage::ATTRIBUTE_REWRITE_FORWARD_NUMBER] ?? null)
             ),
             $rule[Storage::ATTRIBUTE_BUTTON] ?? null,
             $rule[Storage::ATTRIBUTE_CALLER_ID] ?? [],
@@ -190,5 +196,14 @@ class ConfigBuilder
             }
             $this->schedules[$name] = new Schedule($scheduleDaysObjects);
         }
+    }
+
+    private function makeActionExtraOptions(?string $rewriteForwardNumber): array
+    {
+        $extraOptions = [];
+        if ($rewriteForwardNumber) {
+            $extraOptions[Action::EXTRA_OPTION_REWRITE_FORWARD_NUMBER] = $rewriteForwardNumber;
+        }
+        return $extraOptions;
     }
 }

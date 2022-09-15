@@ -10,7 +10,7 @@ require_once '../vendor/autoload.php';
 
 $file = <<<TXT
 start callerid=111 action=goto action-target=main
-start default action=redirect action-target=100
+start default action=redirect action-target=100 rewrite-forward-number=324313213131231
 
 menu name=main playfile=ca17d5b0e3ebaa48
 menu name=main button=1 action=goto action-target=main.1

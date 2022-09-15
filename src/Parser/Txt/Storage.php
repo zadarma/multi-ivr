@@ -25,6 +25,7 @@ class Storage
     public const ATTRIBUTE_TIMEOUT = 'timeout';
     public const ATTRIBUTE_ATTEMPTS = 'attempts';
     public const ATTRIBUTE_MAX_SYMBOLS = 'maxsymbols';
+    public const ATTRIBUTE_REWRITE_FORWARD_NUMBER = 'rewrite-forward-number';
 
     private const WEEK_DAYS = [
         'su' => 0,
@@ -44,6 +45,7 @@ class Storage
             self::ATTRIBUTE_CALLED_DID,
             self::ATTRIBUTE_DEFAULT,
             self::ATTRIBUTE_SCHEDULE,
+            self::ATTRIBUTE_REWRITE_FORWARD_NUMBER,
         ],
         self::TAG_MENU => [
             self::ATTRIBUTE_ACTION,
@@ -58,6 +60,7 @@ class Storage
             self::ATTRIBUTE_TIMEOUT,
             self::ATTRIBUTE_ATTEMPTS,
             self::ATTRIBUTE_MAX_SYMBOLS,
+            self::ATTRIBUTE_REWRITE_FORWARD_NUMBER,
         ],
         self::TAG_SCHEDULE => [
             self::ATTRIBUTE_NAME,

@@ -30,6 +30,10 @@ class Redirect implements Handler
      */
     public function handle(): void
     {
-        (new Request())->setRedirect($this->action->getTarget(), $this->action->getReturnTimeOut())->send();
+        (new Request())->setRedirect(
+            $this->action->getTarget(),
+            $this->action->getReturnTimeOut(),
+            $this->action->getExtraOptions()
+        )->send();
     }
 }

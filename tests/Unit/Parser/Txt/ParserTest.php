@@ -131,7 +131,7 @@ TXT;
         $storageTagMenu = Storage::TAG_MENU;
         $storageAttributeAction = Storage::ATTRIBUTE_ACTION;
         $this->expectException(ParserException::class);
-        $this->expectExceptionMessage("The '{$storageAttributeAction}' attribute of the '{$storageTagMenu}' tag with name 'main' is required in line 3");
+        $this->expectExceptionMessage("The '{$storageAttributeAction}' attribute of the '{$storageTagMenu}' tag with name 'main' is required, error in 3 line.");
         self::createParser()->parse($config);
     }
 
@@ -149,7 +149,7 @@ TXT;
         $storageTagMenu = Storage::TAG_MENU;
         $storageAttributeActionTarget = Storage::ATTRIBUTE_ACTION_TARGET;
         $this->expectException(ParserException::class);
-        $this->expectExceptionMessage("The '{$storageAttributeActionTarget}' attribute of the '{$storageTagMenu}' tag with name 'main' is required in line 3");
+        $this->expectExceptionMessage("The '{$storageAttributeActionTarget}' attribute of the '{$storageTagMenu}' tag with name 'main' is required, error in 3 line.");
         self::createParser()->parse($config);
     }
 
@@ -314,6 +314,20 @@ TXT;
      * @throws MultiIvrException
      * @throws ParserException
      */
+    public function testIncorrectRewriteForwardNumberAttribute(): void
+    {
+        $config = <<<TXT
+start default action=redirect action-target=100 rewrite-forward-number=+123
+TXT;
+        $this->expectException(ParserException::class);
+        $this->expectExceptionMessage("Invalid 'rewrite-forward-number' attribute value, error in the 1 line.");
+        self::createParser()->parse($config);
+    }
+
+    /**
+     * @throws MultiIvrException
+     * @throws ParserException
+     */
     public function testConfigDuplicateAttributes(): void
     {
         $incorrectConfigText = <<<TXT
@@ -346,7 +360,7 @@ TXT;
     public function testParse(): void
     {
         $configTxt = <<<TXT
-start callerid=111 action=redirect action-target=100
+start callerid=111 action=redirect action-target=100 rewrite-forward-number=89631002323
 start calleddid=112 action=redirect action-target=101
 start schedule=off-the-clock callerid=113 calleddid=114 action=redirect action-target=102
 start callerid=113 calleddid=114 action=redirect action-target=103
@@ -356,11 +370,14 @@ menu name=main playfile=file1 timeout=5 attempts=2 maxsymbols=3
 menu name=main callerid=115,118 action=redirect action-target=104
 menu name=main calleddid=116 action=redirect action-target=105
 menu name=main button=1 schedule=dinner callerid=117 calleddid=118 action=redirect action-target=106
-menu name=main button=1 callerid=117 calleddid=118 action=redirect action-target=107
+menu name=main button=1 callerid=117 calleddid=118 action=redirect action-target=107 rewrite-forward-number=89631002324
 menu name=main default action=goto action-target=main.1
 
 menu name=main.1 playfile=file2
 menu name=main.1 default action=goto action-target=main
+
+menu name=main.2 playfile=file3
+menu name=main.2 default action=redirect action-target=108 rewrite-forward-number=89631002325
 
 schedule name=dinner data=mo,tu,we,th,fr:1300-1400,su,sa
 schedule name=off-the-clock data=mo,tu,we,th,fr:0000-0900;1800-2400,sa:0000-0900;1500-2400,su
@@ -410,7 +427,12 @@ TXT;
                 new Action(Action::ACTION_MENU, 'main')
             ))->addRule(
                 new Rule(
-                    new Action(Action::ACTION_REDIRECT, 100),
+                    new Action(
+                        Action::ACTION_REDIRECT,
+                        100,
+                        Action::DEFAULT_RETURN_TIME_OUT,
+                        [Action::EXTRA_OPTION_REWRITE_FORWARD_NUMBER => 89631002323]
+                    ),
                     null,
                     [111]
                 )
@@ -468,7 +490,12 @@ TXT;
                 )
             )->addRule(
                 new Rule(
-                    new Action(Action::ACTION_REDIRECT, 107),
+                    new Action(
+                        Action::ACTION_REDIRECT,
+                        107,
+                        Action::DEFAULT_RETURN_TIME_OUT,
+                        [Action::EXTRA_OPTION_REWRITE_FORWARD_NUMBER => 89631002324]
+                    ),
                     1,
                     [117],
                     [118]
@@ -479,6 +506,17 @@ TXT;
                 'main.1',
                 'file2',
                 new Action(Action::ACTION_MENU, 'main')
+            )
+        )->addMenuItem(
+            new MenuItem(
+                'main.2',
+                'file3',
+                new Action(
+                    Action::ACTION_REDIRECT,
+                    108,
+                    Action::DEFAULT_RETURN_TIME_OUT,
+                    [Action::EXTRA_OPTION_REWRITE_FORWARD_NUMBER => 89631002325]
+                )
             )
         );
         self::assertEquals($exceptedConfig, $config);
